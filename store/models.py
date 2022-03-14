@@ -1,8 +1,20 @@
-from enum import unique
+# from enum import unique
 from django.db import models
-from django.forms import CharField, DateField, EmailField
+# from django.forms import CharField, DateField, EmailField
 
 # Create your models here.
+# Promotions and products
+
+
+class Promotion(models.Model):
+    description = models.CharField(max_length=255)
+    discount = models.FloatField()
+
+
+class Collection(models.Model):
+    title = models.CharField(max_length=255)
+    featured_product = models.ForeignKey(
+        'Product', on_delete=models.SET_NULL, null=True, related_name='+')
 
 
 class Product(models.Model):
@@ -11,16 +23,14 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=6, decimal_places=2)
     inventory = models.IntegerField()
     last_update = models.DateTimeField(auto_now=True)
-
-
-class Collection(models.Model):
-    title = models.CharField(max_length=255)
+    promotions = models.ManyToManyField(Promotion)
 
 
 class Product(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
-    price = models.DecimalField(max_digits=6, decimal_places=2)
+    # max_digits and decimal_places threw an error in price
+    price = models.DecimalField()
     inventory = models.IntegerField()
     last_update = models.DateTimeField(auto_now=True)
     collection = models.ForeignKey(Collection, on_delete=models.PROTECT)
@@ -65,7 +75,8 @@ class Order(models.Model):
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.PROTECT)
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
-    quantity = models.PositiveSmallIntegerField(max_digits=6, decimal_places=2)
+    # max_digits and decimal_places threw an error in quanitity
+    quantity = models.PositiveSmallIntegerField()
 
 
 class Address(models.Model):
@@ -81,3 +92,5 @@ class Cart(models.Model):
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveSmallIntegerField()
